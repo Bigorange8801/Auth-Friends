@@ -1,34 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 
-const Login () {
-    return (
-        <Form className ="form">
-            <div className="form-group">
-                <label className="label">Email</label>
-                <Field className="input"
-                        name="email"
-                        type="email"
-                        autoComplete="off"
-                        />
-            </div>
-            
-            <div className="form-group">
-                <label className="label">User Name</label>
-                <Field className="input"
-                       name="user"
-                       type="user"
-                       autoComplete="off"
-                       />
-            </div>
+const Login = ({ history }) => {
+  const [creds, setCreds] = useState({username: "", password: ""});
 
-            <div className="form-group">
-                <label className="label">Password</label>
-                <Field className="input"
-                       name="password"
-                       type="password"
-                       autoComplete="off"
-                       />           
-            </div>
-        </Form>
-    )
-}
+  const handleChange = event => {
+    setCreds({...creds, [event.target.name]: event.target.value});
+  };
+
+  const handleSubmit = event => {
+    event.preventDefault();
+    axios.post('http://localhost:5000/api/login', creds)
+      .then(res => {
+        console.log(res);
+        localStorage.setItem('token', res.data.payload);
+        history.push("/friends");
+      })
+      .catch(err => console.log(err.response));
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text"
+             name="username"
+             placeholder="username"
+             onChange={handleChange}
+             value={creds.username} />
+      <input type="password"
+             name="password"
+             placeholder="password"
+             onChange={handleChange}
+             value={creds.password} />
+      <button type="submit">Log In</button>
+    </form>
+  );
+};
+
+export default Login;
